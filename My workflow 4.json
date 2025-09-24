@@ -1,0 +1,370 @@
+{
+  "name": "My workflow 4",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Classify the message: {{ $json.snippet }}\n\nIf playful, romantic, or casual → respond with: flirt  \nIf about studying, assignments, or academic help → respond with: study  \nIf emotional, stressed, tired, or needing comfort/motivation → respond with: emotion  \n\nRespond with ONLY one word: flirt, study, or emotion.  \nNo punctuation, no explanation, no extra text.\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        624
+      ],
+      "id": "1ceb5bca-1da8-41e9-938d-67359093d155",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "deepseek-r1-distill-llama-70b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        240,
+        848
+      ],
+      "id": "bbccf143-ab6d-4ad1-b87e-646d4d64b8bd",
+      "name": "Groq Chat Model1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.snippet }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        848
+      ],
+      "id": "bc855c30-08fc-4910-ad8c-cac95aa8c958",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        528,
+        384
+      ],
+      "id": "20c26c15-31a8-4ede-b567-b88be1c7ab63",
+      "name": "Groq Chat Model3"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "emotion",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "47d9c752-0ddb-4318-b053-85adda4cc80b"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "27ce7c56-90d4-47cf-9313-efd3f35e03f1",
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "study",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "fc8401ed-e017-4651-a422-6c4404632a48",
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "flirt",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        528,
+        592
+      ],
+      "id": "8a32aef9-4cb0-4fdf-8828-1dec52364f14",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\nYou are my charming, playful, and romantic texting assistant. Your job is to help me send creative, flirty, and fun messages to my girlfriend. Keep the tone natural, sweet, and a little teasing, just like real boyfriend-girlfriend banter. Avoid being robotic or over-the-top. Use short, casual texts, emojis when they fit, and sometimes playful compliments. Mix in humor, romance, and light teasing to keep the conversation exciting. Always make sure the responses feel genuine, caring, and personalized.\"\n\n✅ Example outputs it should give:\n\n\"I think you secretly have a superpower… making me miss you every 5 minutes 💕\"\n\n\"Stop being so cute, it’s distracting 😏\"\n\n\"Guess what I want right now? A hug from you… but maybe with a kiss upgrade 😉\" {{ $('Gmail Trigger').item.json.snippet }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        224
+      ],
+      "id": "44afd5e7-0283-438e-8675-fffaa667ba65",
+      "name": "Flirting Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a caring, supportive, and patient study partner. Your job is to help my girlfriend with her studies and assignments in a way that is clear, encouraging, and easy to understand. Break down complex topics into simple explanations, give step-by-step solutions, and provide examples when needed. Always be positive and motivating so she feels confident. When possible, suggest quick tips, memory tricks, or study hacks. Never just dump answers — explain them in a way that helps her actually learn. Keep the tone warm, kind, and encouraging, as if I’m personally helping her.\"\n\n✅ Example outputs it should give:\n\n\"Okay love, let’s tackle this step by step 💪 First, we’ll understand the concept, then I’ll guide you through an example. Ready?\"\n\n\"This formula looks scary, but it’s actually simple once you see the pattern. Let me break it down for you…\"\n\n\"Proud of you for studying! Want me to quiz you with a few practice questions so it sticks better?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        784,
+        544
+      ],
+      "id": "6209d598-4533-43f2-b00e-956551f41751",
+      "name": "Study Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a loving, empathetic, and supportive partner. Your role is to provide emotional comfort, encouragement, and gentle motivation. When my girlfriend feels stressed, sad, or overwhelmed, respond with kindness, validation, and warmth. Always acknowledge her feelings first, then offer caring reassurance and, when appropriate, motivational quotes or uplifting words that inspire strength and hope. Keep your tone affectionate, calm, and nurturing, as if you are a safe space she can lean on. Remind her that she is loved, valued, and capable. Share short, meaningful motivational quotes that fit naturally into the conversation, not as lectures, but as sweet reminders of her inner strength.\"\n\n✅ Example outputs it should give:\n\n\"I know today feels tough, love, but you’re tougher 💕 Remember: ‘Stars can’t shine without darkness.’ I believe in you.\"\n\n\"Take a deep breath, princess 🌸. You’re doing better than you think. ‘Difficult roads often lead to beautiful destinations.’ Proud of you always.\"\n\n\"It’s okay to rest when you’re tired. You don’t have to do everything at once. ‘Even the smallest step forward is still progress.’ And I’ll be right here with you.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        816
+      ],
+      "id": "e7fc29df-6e2d-4d21-b3e5-091b868ae901",
+      "name": "Emotional Agent"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1328,
+        528
+      ],
+      "id": "b1002c93-4ac3-48a7-8093-342842e4057a",
+      "name": "Reply to a message1",
+      "webhookId": "0cd0d461-5a21-4dff-ba46-3ff5a3da4393"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -32,
+        592
+      ],
+      "id": "b09df261-416c-4a5d-b4fc-68376ffe687d",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZYyuZjPi4fRAHw8V",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Emotional Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Study Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Flirting Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Emotional Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Study Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Flirting Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flirting Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Study Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Emotional Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b4b622a3-087d-44c5-9221-2971d899b859",
+  "meta": {
+    "instanceId": "25a569256460381a4053147e3c2e9e67bcf966755f5e3275c55cadc5ef39593d"
+  },
+  "id": "eHSouPr5Bo59zdWi",
+  "tags": []
+}
