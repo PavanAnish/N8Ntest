@@ -1,0 +1,110 @@
+{
+  "name": "Daily Weather Reports with OpenWeatherMap and Telegram Bot",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "f55bdbef-30ef-4759-815c-8168bbb0d6b8",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.cron",
+      "position": [
+        576,
+        656
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "cityName": "Kielce,PL",
+        "language": "en"
+      },
+      "id": "954baa8c-530b-4bcc-bff9-00e841bdf7dd",
+      "name": "Get Weather",
+      "type": "n8n-nodes-base.openWeatherMap",
+      "position": [
+        800,
+        656
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "functionCode": "const weather = items[0].json;\n\nfunction formatTime(timestamp, timezoneOffset) {\n  const date = new Date((timestamp + timezoneOffset) * 1000);\n  return date.toISOString().substr(11, 5);\n}\n\nconst city = weather.name;\nconst temp = weather.main.temp.toFixed(1);\nconst tempMin = weather.main.temp_min.toFixed(1);\nconst tempMax = weather.main.temp_max.toFixed(1);\nconst feelsLike = weather.main.feels_like.toFixed(1);\nconst description = weather.weather[0].description;\nconst rain = weather.rain ? weather.rain[\"1h\"] : 0;\nconst windSpeed = weather.wind.speed.toFixed(1);\nconst windDeg = weather.wind.deg;\nconst clouds = weather.clouds.all;\nconst sunrise = formatTime(weather.sys.sunrise, weather.timezone);\nconst sunset = formatTime(weather.sys.sunset, weather.timezone);\n\nconst message = `Weather in ${city}:\n🌡 Temperature: ${temp}°C (feels like: ${feelsLike}°C)\n📉 Min: ${tempMin}°C, 📈 Max: ${tempMax}°C\n🌧 Precipitation: ${description}, ${rain} mm in the last hour\n💨 Wind: ${windSpeed} m/s, direction ${windDeg}°\n☁️ Cloudiness: ${clouds}%\n🌅 Sunrise: ${sunrise}\n🌇 Sunset: ${sunset}`;\n\nreturn [{ json: { message } }];"
+      },
+      "id": "124a7ab9-52a1-4e4c-8735-787bb27083b5",
+      "name": "Format Weather",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        1024,
+        656
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "chatId": "XXXXXXX",
+        "text": "={{ $json.message }}",
+        "additionalFields": {}
+      },
+      "id": "494899d5-16e9-44a4-acf9-190087e14bee",
+      "name": "Send a text message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1264,
+        656
+      ],
+      "webhookId": "a1a10685-f8eb-4b97-897f-3c9031e8de55",
+      "typeVersion": 1.2,
+      "credentials": {
+        "telegramApi": {
+          "id": "85UK9TSLuQmpsPqH",
+          "name": "Telegram account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get Weather": {
+      "main": [
+        [
+          {
+            "node": "Format Weather",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Weather": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Weather",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "560e3fe0-2432-4eac-b715-6aca6f0a5006",
+  "meta": {
+    "templateId": "8162",
+    "instanceId": "25a569256460381a4053147e3c2e9e67bcf966755f5e3275c55cadc5ef39593d"
+  },
+  "id": "2dLvamdH12PIASUR",
+  "tags": []
+}
